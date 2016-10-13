@@ -1,3 +1,56 @@
 // Place all the styles related to the games controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+.navbar-fixed-top {
+  height: 95px;
+  background-color: #021019;
+  border-bottom: 1px solid white;
+  li { 
+    display: inline-block;
+    list-style: none;
+  }
+}
+
+.log {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+}
+
+.left_side_bar {
+  border-radius: 0.5em;
+  background-color: rgba(0,0,0,0.75);
+  z-index: 1;
+  position: fixed;
+  top: 120px;
+  left: 20px;
+  height: 400px;
+  width: 200px;
+}
+
+
+#signedIn {
+  position: fixed;
+  top: 20px;
+  left: 30px;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+#createNewGame {
+  margin: 0;
+  padding-bottom: 1em;
+  display: none;
+  text-align: center;
+  border: 1px solid white;
+  right: 1%;
+  top: 10%;
+  z-index: 1;
+  position: fixed;
+  background-color: #08304B;
+
+}
