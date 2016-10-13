@@ -9,15 +9,24 @@
     <% else %>
       <div class="log"><%= link_to "Log In", new_user_session_path %></div>
     <% end %>
+    <ul>
+      <li>Rules</li>
+      <li>Games</li>
+      <li></li>
+    </ul>
   </nav>
 </div>
 
 <div class="left_side_bar">
+  <p>Reclaim the Streets!</p>
+  <p>To create a game, place a marker on the map for the meeting point, click on the button below and fill out the form</p>
   <ul>
     <li><%= button_tag "New Game", id: "newGameWindowBtn", class: "button" %></li>
     <li></li>
     <li></li>
   </ul>
+  <p>To join a game, click on a flag to sign up to attend that game!</p>
+  <%= button_tag "Hide Me", id: "sideBarBtn", class: "button" %>
 </div>
     
 <div id="createNewGame">
@@ -92,7 +101,7 @@ newGameWindowBtn.on("click", function () {
 });
 
 var games = [<% @games.each do |game| %>
-<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].url}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
 <% end %>];
 
 var createGameMarker = function (game) {
@@ -105,6 +114,9 @@ var createGameMarker = function (game) {
       lat: game.lat,
       lng: game.lng
     }
+  });
+  var infoWindow = new google.maps.InfoWindow({
+    content: "Some random content"
   });
   game.marker.addListener('mouseover', function () {
     $(".game").css("display", "none");
@@ -126,7 +138,7 @@ var createGameMarker = function (game) {
         '<div class="infoWindowDesc">' +
         'Time: ' + game.time + '<br>' +
         'Description: ' + game.description +
-        '</div></div>'
+        '</div></div><input type="submit" value="Join Game" class="joinGameBtn" id="game_' + game.id + '">'
         );
     infoWindow.open(map, game.marker);
   });
@@ -135,10 +147,6 @@ var createGameMarker = function (game) {
 var map;
 function initMap() {
   var lastSelectedGame = null;
-  var infoWindow = new google.maps.InfoWindow({
-    content: "FRRRARARRARARRAR Hello World"
-
-  });
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 51.38806611676009, lng: -0.100250244140625},
     minZoom: 3,
@@ -168,6 +176,11 @@ function initMap() {
 
 
 }
+
+var joinGame = $(".joinGameBtn");
+joinGame.on("click", function () {
+  console.log(this);
+})
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCgPKDNnR376aeoPLyafsvnJs_EcpDtPV8&callback=initMap" async defer>
 </script>
