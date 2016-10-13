@@ -14,7 +14,7 @@
 
 <div class="left_side_bar">
   <ul>
-    <li><%= button_tag "New Game", id: "newGameWindowBtn" %></li>
+    <li><%= button_tag "New Game", id: "newGameWindowBtn", class: "button" %></li>
     <li></li>
     <li></li>
   </ul>
@@ -35,7 +35,7 @@
       <h3>Description:</h3>
       <%= f.text_area :description %><br>
       <div id="createGameBtn">
-        <%= f.submit "Create Game" %>
+        <%= f.submit "Create Game", class: "button" %>
       </div>
     <% end %>
   </div>
