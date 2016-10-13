@@ -15,16 +15,15 @@
  */
 
 @import "bootstrap";
+
+html {
+  height: 100%;
+  width: 100%;
+}
+
 body { 
-  padding-top: 40px; 
+  height: 100%;
+  width: 100%;
   background-color: #1B0953;
 }
 
-.navbar-fixed-top {
-  background-color: #021019;
-  border-bottom: 1px solid white;
-  li { 
-    display: inline-block;
-    list-style: none;
-  }
-}
