@@ -39,6 +39,7 @@ group :development, :test do
 end
 
 group :test do
+  gem 'tsuite'
   gem 'rspec-rails'
   gem 'simplecov', require: false
 end
@@ -60,3 +61,9 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 # File Uploader
 gem 'carrierwave', '>= 1.0.0.beta', '< 2.0'
 gem 'mini_magick', require: 'mini_magick'
+
+
+gem 'bootstrap', '~> 4.0.0.alpha4'
+source 'https://rails-assets.org' do
+    gem 'rails-assets-tether', '>= 1.1.0'
+end
