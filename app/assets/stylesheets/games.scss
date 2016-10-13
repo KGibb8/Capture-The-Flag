@@ -3,7 +3,7 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 .navbar-fixed-top {
-  height: 50px;
+  height: 95px;
   background-color: #021019;
   border-bottom: 1px solid white;
   li { 
@@ -14,13 +14,25 @@
 
 .log {
   position: fixed;
-  top: 10px;
+  top: 20px;
   right: 30px;
 }
 
+.left_side_bar {
+  border-radius: 0.5em;
+  background-color: rgba(0,0,0,0.75);
+  z-index: 1;
+  position: fixed;
+  top: 120px;
+  left: 20px;
+  height: 400px;
+  width: 200px;
+}
+
+
 #signedIn {
   position: fixed;
-  top: 10px;
+  top: 20px;
   left: 30px;
 }
 
