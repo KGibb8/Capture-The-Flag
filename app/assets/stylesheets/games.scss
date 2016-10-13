@@ -64,14 +64,17 @@
   z-index: 1;
   position: fixed;
   background-color: rgba(0,0,0,0.75);
-  input {
+  input, textarea, select, option {
     border: 1px solid #373A3C;
     background-color: rgba(0,0,0,0.75);
     color: #373A3C;
   }
-  textarea {
-    border: 1px solid #373A3C;
-    background-color: rgba(0,0,0,0.75);
-    color: #373A3C;
-  }
+  // textarea {
+  //   border: 1px solid #373A3C;
+  //   background-color: rgba(0,0,0,0.75);
+  //   color: #373A3C;
+  // }
+  // select {
+  //   background: rgba(0,0,0,0.75);
+  // }
 }

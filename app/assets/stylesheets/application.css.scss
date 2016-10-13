@@ -24,6 +24,37 @@ html {
 body { 
   height: 100%;
   width: 100%;
-  background-color: #1B0953;
+  background-color: #021019;
 }
 
+.banner {
+  margin-top: 3em;
+}
+#normalMode {
+  text-align: left;
+}
+#gameMode {
+  text-align: right;
+}
+
+a {
+  text-decoration: none;
+}
+
+h3 {
+  text-decoration: none;
+  cursor: pointer;
+  color: #0271D2
+}
+
+#gameLogin {
+  border-radius: 1em;
+  z-index: 1;
+  position: fixed;
+  top: 10%;
+  right: 10%;
+  display: none;
+  height: 80%;
+  width: 80%;
+  background-color: rgba(0,0,0,0.75);
+}

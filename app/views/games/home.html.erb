@@ -1,20 +1,37 @@
 <div class="container">
   <div class="row">
-    <%= image_tag("/assets/banner.jpg", class: "banner") %>
+    <div class="col-md-2"></div>
+    <div class="col-md-8"><%= image_tag("/assets/banner.png", class: "banner") %></div>
+    <div class="col-md-2"></div>
   </div>
-
+  <br>
   <div class="row">
-    <div class="six column">
-      <h3><%= link_to "Normal Mode", games_path %></h3>
+    <div class="col-md-2"></div>
+    <div class="col-md-3" id="normalMode">
+      <h3><%= link_to "Normal Mode", games_path, id: "goNormal" %></h3>
     </div>
-    <div class="six column">
-      <h3><%= link_to "Game Mode", games_path %></h3>
+    <div class="col-md-2"></div>
+    <div class="col-md-3" id="gameMode">
+      <h3 id="joinGame">Game Mode</h3>
     </div>
+    <div class="col-md-2"></div>
   </div>
 </div>
 
+<div id="gameLogin"></div>
+
 <script>
 
+var joinGame = $("#joinGame");
+var countClick = 1;
+joinGame.on("click", function () {
+  countClick += 1;
+  if (countClick % 2 == 0) {
+    $("#gameLogin").css("display", "block");
+  } else {
+    $("#gameLogin").css("display", "none");
+  }
+});
 </script>
 
 
