@@ -23,4 +23,7 @@ class GamesController < ApplicationController
     # @players = @game.sessions
   end
 
+  def games_params
+    params.require(:game).permit(:lat, :lng, :name, :description, :start_time, {pictures: []})
+  end
 end
