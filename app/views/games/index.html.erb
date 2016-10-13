@@ -1,23 +1,45 @@
-<div id="map"></div>
+<%= button_tag "New Game", id: "newGameWindowBtn" %>
 
-<div class="allGames">
-  <% @games.each do |game| %>
-    <div class="game" id="game_<%= game.id %>">
-    </div>
-  <% end %>
+<div id="createNewGame">
+  <div class="gameSidebar">
+    <h2>Add a new game!</h2>
+    <%= form_for(@game, remote: true, authenticity_token: true) do |f| %>
+          <h3>Name</h3>
+          <%= f.text_field :name %><br>
+          <%= f.hidden_field :lat %><br>
+          <%= f.hidden_field :lng %>
+          <h3>Add Game Picture</h3>
+          <%= f.file_field :pictures, multiple: true %>
+          <h3>Time:</h3>
+          <%= f.datetime_select :start_time %><br>
+          <h3>Description:</h3>
+          <%= f.text_area :description %><br>
+      <div id="createGameBtn">
+        <%= f.submit "Create Game" %>
+      </div>
+    <% end %>
+  </div>
 </div>
 
-<script>
+
+  <div id="map"></div>
+
+  <div class="allGames">
+    <% @games.each do |game| %>
+      <div class="game" id="game_<%= game.id %>">
+      </div>
+    <% end %>
+  </div>
+
+  <script>
 $(function () {
   $("#new_game").on("ajax:success", function (game, data, status, xhr) {
-    console.log(data, xhr.responseText);
-    data.lng = data.long;
+    <%# console.log(data, xhr.responseText); %>
+    data.lng = data.lng;
     createGameMarker(data);
     actualWindow.css("display", "none");
     marker.setVisible(false);
-
   });
-
 });
 
 var actualWindow = $("#createNewGame");
@@ -30,13 +52,11 @@ newGameWindowBtn.on("click", function () {
 
   } else {
     actualWindow.css("display", "none");
-
   };
-
 });
 
 var games = [<% @games.each do |game| %>
-<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.long}, name: #{game.name.inspect}, picture: '#{game.picture.thumb.url}', time: '#{game.time.inspect}', description: #{game.description.inspect}},".html_safe %>
+<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].url}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
 <% end %>];
 
 var createGameMarker = function (game) {
@@ -48,7 +68,6 @@ var createGameMarker = function (game) {
     position: {
       lat: game.lat,
       lng: game.lng
-
     }
   });
   game.marker.addListener('mouseover', function () {
@@ -72,7 +91,6 @@ var createGameMarker = function (game) {
         'Time: ' + game.time + '<br>' +
         'Description: ' + game.description +
         '</div></div>'
-
         );
     infoWindow.open(map, game.marker);
   });
@@ -98,25 +116,22 @@ function initMap() {
     map: map,
     draggable: false,
     animation: google.maps.Animation.DROP
-
   });
 
   map.addListener('click', function (e) {
     // Go fill in the input type=hidden
     marker.setVisible(true);
     $("#game_lat").val(e.latLng.lat());
-    $("#game_long").val(e.latLng.lng());
+    $("#game_lng").val(e.latLng.lng());
     marker.setPosition(e.latLng);
-
   });
 
   games.forEach(function (game) {
     createGameMarker(game);
-
   });
 
 
 }
-</script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCgPKDNnR376aeoPLyafsvnJs_EcpDtPV8&callback=initMap" async defer>
-</script>
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCgPKDNnR376aeoPLyafsvnJs_EcpDtPV8&callback=initMap" async defer>
+  </script>

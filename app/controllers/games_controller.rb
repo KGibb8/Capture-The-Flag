@@ -7,15 +7,15 @@ class GamesController < ApplicationController
   def index
     @games = Game.all
     @game = Game.new
-    # @users = User.all
+    @users = User.all
   end
 
   def create
     my_games_params = games_params.to_h
     # my_games_params = my_games_params.merge(creator: current_user.id)
-    event = Event.new(my_games_params)
+    game = Game.new(my_games_params)
     flash[:notice] = "#{game.name} created successfully!" if game.save
-    render json: event
+    render json: game
   end
 
   def show

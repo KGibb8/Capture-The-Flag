@@ -15,3 +15,16 @@
  */
 
 @import "bootstrap";
+body { 
+  padding-top: 40px; 
+  background-color: #1B0953;
+}
+
+.navbar-fixed-top {
+  background-color: #021019;
+  border-bottom: 1px solid white;
+  li { 
+    display: inline-block;
+    list-style: none;
+  }
+}
