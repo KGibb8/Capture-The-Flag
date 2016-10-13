@@ -18,6 +18,12 @@
   }
 }
 
+.nav-title {
+  text-decoration: none;
+  cursor: pointer;
+  color: #0271D2
+}
+
 .log {
   position: fixed;
   top: 20px;
@@ -69,12 +75,4 @@
     background-color: rgba(0,0,0,0.75);
     color: #373A3C;
   }
-  // textarea {
-  //   border: 1px solid #373A3C;
-  //   background-color: rgba(0,0,0,0.75);
-  //   color: #373A3C;
-  // }
-  // select {
-  //   background: rgba(0,0,0,0.75);
-  // }
 }
