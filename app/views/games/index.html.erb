@@ -40,7 +40,7 @@
 <div id="createNewGame">
   <div class="gameSidebar">
     <h2>Add a new game!</h2>
-    <%= form_for(@game, remote: true) do |f| %>
+    <%= form_for @game do |f| %>
       <h3>Name</h3>
       <%= f.text_field :name %><br>
       <%= f.hidden_field :lat %><br>
@@ -99,8 +99,11 @@
 </div>
 
 <script>
+
+var csrf = $("meta[name=csrf-token]").attr('content');
+
 $(function () {
-  $("#createGameBtn").on("click", function (e) {
+  <%# $("#createGameBtn").on("click", function (e) { %>
     <%# e.preventDefault(); %>
       <%# var form = $(this).parent().children(); %>
       <%# $.post('/games', function () { %>
@@ -115,10 +118,10 @@ $(function () {
                     <%#   function (response) { %>
                         <%#     console.log(response); %>
                           <%# }); %>
-  });
+  <%# }); %>
   $("#new_game").on("ajax:success", function (game, data, status, xhr) {
-    <%# console.log(data, xhr.responseText); %>
-      data.lng = data.lng;
+    console.log(data, xhr.responseText);
+    data.lng = data.lng;
     createGameMarker(data);
     actualWindow.css("display", "none");
     marker.setVisible(false);
@@ -161,23 +164,23 @@ newGameWindowBtn.on("click", function () {
 });
 
 var games = [<% @games.each do |game| %>
-<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
 <% end %>];
 
 var pastGames = [<% @past_games.each do |game| %>
-<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
 <% end %>];
 
 var upcomingGames = [<% @upcoming_games.each do |game| %> 
-<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
 <% end %>];
 
 var myPastGames = [<% @my_past_games.each do |game| %> 
-<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
 <% end %>];
 
 var myUpcomingGames = [<% @my_upcoming_games.each do |game| %> 
-<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
 <% end %>];
 
 
@@ -207,6 +210,7 @@ var createGameMarker = function (game, i) {
     content: "FRRRARARRARARRAR Hello World"
   });
   game.marker.addListener("click", function (e) {
+    console.log(this);
     if (infoWindow) {
       infoWindow.close();
     }
@@ -221,6 +225,21 @@ var createGameMarker = function (game, i) {
     });
     lastSelectedIncident = null;
     infoWindow.open(map, game.marker);
+    var joinGame = $("#game_" + game.id);
+    joinGame.on("click", function () {
+      $.post('/games', {
+        authenticity_token: csrf,
+        session: {
+          game_id: this.id.toString().substring(5, 999)
+        }
+      }).done(
+        function (response) {
+          console.log(response);
+      });
+    });
+  });
+  game.marker.addListener("mouseout", function () {
+    infoWindow = null;
   });
 };
 
@@ -251,22 +270,12 @@ function initMap() {
   });
   var allGames = [pastGames, upcomingGames, myPastGames, myUpcomingGames];
   for (var i = 0; i < allGames.length; ++i) {
-    allGames[i].forEach(function (game, i) {
+    allGames[i].forEach(function (game) {
       createGameMarker(game, i);
     })
   }
-
-  <%# games.forEach(function (game) { %>
-      <%#   createGameMarker(game); %>
-        <%# }); %>
-
-
 }
 
-var joinGame = $(".joinGameBtn");
-joinGame.on("click", function () {
-  console.log(this);
-})
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCgPKDNnR376aeoPLyafsvnJs_EcpDtPV8&callback=initMap" async defer>
 </script>
