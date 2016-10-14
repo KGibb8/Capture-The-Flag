@@ -14,8 +14,8 @@
     <ul>
       <li class="col-md-1" id="rules"><h2 class="nav-title">Rules</h2></li>
       <li class="col-md-1" id="games"><h2 class="nav-title">Games</h2></li>
-      <li class="col-md-1" id="about"><h2 class="nav-title">Friends</h2></li>
       <li class="col-md-1" id="about"><h2 class="nav-title">About</h2></li>
+      <li class="col-md-1" id="about"><h2 class="nav-title"><%= link_to "Home", root_path %></h2></li>
     </ul>
     <div class="col-md-4"></div>
   </nav>
@@ -24,15 +24,19 @@
 <div class="left_side_bar">
   <p>Reclaim the Streets!</p>
   <p>To create a game, place a marker on the map for the meeting point, click on the button below and fill out the form</p>
-  <ul>
-    <li><%= button_tag "New Game", id: "newGameWindowBtn", class: "button" %></li>
-    <li></li>
-    <li></li>
-  </ul>
+  <% unless current_user.nil? %>
+    <ul>
+      <li><%= button_tag "New Game", id: "newGameWindowBtn", class: "button" %></li>
+      <li><%= button_tag "My Games", id: "myGamesWindowBtn", class: "button" %></li>
+      <li></li>
+    </ul>
+  <% else %>
+    <p>You need to be signed in to create or join a game!</p>
+  <% end %>
   <p>To join a game, click on a flag to sign up to attend that game!</p>
   <%= button_tag "Hide Me", id: "sideBarBtn", class: "button" %>
 </div>
-    
+
 <div id="createNewGame">
   <div class="gameSidebar">
     <h2>Add a new game!</h2>
@@ -43,8 +47,13 @@
       <%= f.hidden_field :lng %>
       <h3>Add Game Picture</h3>
       <%= f.file_field :pictures, multiple: true %>
+      <br><br>
       <h3>Time:</h3>
+      <p>Starts at...</p>
       <%= f.datetime_select :start_time %><br>
+      <p>Ends at...</p>
+      <%= f.datetime_select :end_time %><br>
+      <br>
       <h3>Description:</h3>
       <%= f.text_area :description %><br>
       <div id="createGameBtn">
@@ -54,6 +63,31 @@
   </div>
 </div>
 
+<% unless current_user.nil? %>
+  <div id="myGames">
+    <div class="gameSidebar">
+      <h2>My Upcoming Games</h2>
+      <% if current_user.games.empty? %>
+        <p>You have no current games, click on one to join!</p>
+      <% else %>
+        <ul>
+          <% @my_upcoming_games.each do |game| %>
+            <li>
+              <ul>
+                <li><%= game.name %></li>
+                <li><%= game.start_time %></li>
+                <li><%= game.end_time %><</li>
+                <li><%= game.pictures[0].thumb.url %></li>
+                <li><%= game.description %></li>
+                <li><%= button_tag "Locate", id: "locoBtn", class: "button" %></li>
+              </ul>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+  </div>
+<% end %>
 
 <div id="map"></div>
 
@@ -91,14 +125,36 @@ $(function () {
   });
 });
 
+////////////////// WINDOW TOGGLE //////////////////////
+
 var actualWindow = $("#createNewGame");
 var newGameWindowBtn = $("#newGameWindowBtn");
 var gameWindowBtnCount = 1;
+
+var actualMyGamesWindow = $("#myGames");
+var myGamesWindowBtn = $("#myGamesWindowBtn");
+var myGamesWindowBtnCount = 1;
+
+// TODO: This needs rewriting using toggle
+
+console.log(myGamesWindowBtn)
+  myGamesWindowBtn.on("click", function () {
+    myGamesWindowBtnCount += 1;
+    if (myGamesWindowBtnCount% 2 == 0) {
+      actualMyGamesWindow.css("display", "block");
+      gameWindowBtnCount += 1;
+      actualWindow.css("display", "none");
+    } else {
+      actualMyGamesWindow.css("display", "none");
+    };
+  });
+
 newGameWindowBtn.on("click", function () {
   gameWindowBtnCount += 1;
   if (gameWindowBtnCount % 2 == 0) {
     actualWindow.css("display", "block");
-
+    myGamesWindowBtnCount += 1;
+    actualMyGamesWindow.css("display", "none")
   } else {
     actualWindow.css("display", "none");
   };
@@ -108,19 +164,33 @@ var games = [<% @games.each do |game| %>
 <%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
 <% end %>];
 
-var createGameMarker = function (game) {
+var pastGames = [<% @past_games.each do |game| %>
+<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+<% end %>];
+
+var upcomingGames = [<% @upcoming_games.each do |game| %> 
+<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+<% end %>];
+
+var myPastGames = [<% @my_past_games.each do |game| %> 
+<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+<% end %>];
+
+var myUpcomingGames = [<% @my_upcoming_games.each do |game| %> 
+<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+<% end %>];
+
+
+var createGameMarker = function (game, i) {
   game.marker = new google.maps.Marker({
     map: map,
-    icon: '/assets/flags/black_flag.png',
+    icon: '/assets/flags/flag_'+ i +'.png',
     draggable: false,
     animation: google.maps.Animation.DROP,
     position: {
       lat: game.lat,
       lng: game.lng
     }
-  });
-  var infoWindow = new google.maps.InfoWindow({
-    content: "Some random content"
   });
   game.marker.addListener('mouseover', function () {
     $(".game").css("display", "none");
@@ -133,17 +203,23 @@ var createGameMarker = function (game) {
       lastSelectedIncident.style.display = "none";
     }
   });
+  var infoWindow = new google.maps.InfoWindow({
+    content: "FRRRARARRARARRAR Hello World"
+  });
   game.marker.addListener("click", function (e) {
-    lastSelectedIncident = null;
-    infoWindow.setContent(
-        '<div class="infoWindowContent">' +
+    if (infoWindow) {
+      infoWindow.close();
+    }
+    var infoWindow = new google.maps.InfoWindow({
+      content : '<div class="infoWindowContent">' +
         '<h2>' + game.name + '</h2>' +
         '<img src=' + game.picture + '>' +
         '<div class="infoWindowDesc">' +
         'Time: ' + game.time + '<br>' +
-        'Description: ' + game.description +
-        '</div></div><input type="submit" value="Join Game" class="joinGameBtn" id="game_' + game.id + '">'
-        );
+        'Description: ' + game.description + 
+        '</div><input type="submit" value="Join Game" class="joinGameBtn" id="game_' + game.id + '"></div>'
+    });
+    lastSelectedIncident = null;
     infoWindow.open(map, game.marker);
   });
 };
@@ -173,10 +249,16 @@ function initMap() {
     $("#game_lng").val(e.latLng.lng());
     marker.setPosition(e.latLng);
   });
+  var allGames = [pastGames, upcomingGames, myPastGames, myUpcomingGames];
+  for (var i = 0; i < allGames.length; ++i) {
+    allGames[i].forEach(function (game, i) {
+      createGameMarker(game, i);
+    })
+  }
 
-  games.forEach(function (game) {
-    createGameMarker(game);
-  });
+  <%# games.forEach(function (game) { %>
+      <%#   createGameMarker(game); %>
+        <%# }); %>
 
 
 }

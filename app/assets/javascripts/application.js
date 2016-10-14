@@ -16,13 +16,13 @@
 //= require tether
 //= require bootstrap-sprockets
 
-var windowOpenCloseClick = function (button, toggleElem) {
-  var count = 1;
-  button.on("click" function () {
-    if (count % 2 == 0) {
-      toggleElem.css("display", "block");
-    } else {
-      toggleElem.css("display", "none");
-    }
-  });
-};
+// var windowOpenCloseClick = function (button, toggleElem) {
+//   var count = 1;
+//   button.on("click" function () {
+//     if (count % 2 == 0) {
+//       toggleElem.css("display", "block");
+//     } else {
+//       toggleElem.css("display", "none");
+//     }
+//   });
+// };

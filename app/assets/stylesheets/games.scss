@@ -19,6 +19,8 @@
 }
 
 .nav-title {
+  font-size: 1em;
+  text-align: left;
   text-decoration: none;
   cursor: pointer;
   color: #0271D2
@@ -38,13 +40,14 @@
   position: fixed;
   top: 120px;
   left: 20px;
-  height: 400px;
+  height: 500px;
   width: 200px;
   ul {
     padding: 0;
     list-style-type: none;
     li {
       list-style: none;
+      padding: 0.5em;
     }
   }
 }
@@ -61,6 +64,17 @@
   width: 100%;
   position: relative;
 }
+#myGames {
+  padding: 1em;
+  border-radius: 0.5em;
+  top: 120px;
+  right: 20px;
+  display: none;
+  z-index: 1;
+  position: fixed;
+  background-color: rgba(0,0,0,0.75);
+}
+
 #createNewGame {
   padding: 1em;
   border-radius: 0.5em;

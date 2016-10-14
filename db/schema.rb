@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(version: 20161013150124) do
   create_table "games", force: :cascade do |t|
     t.string   "name"
     t.datetime "start_time"
+    t.datetime "end_time"
     t.float    "lat"
     t.float    "lng"
     t.text     "description"
