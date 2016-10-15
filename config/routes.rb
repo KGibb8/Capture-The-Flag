@@ -4,6 +4,8 @@ Rails.application.routes.draw do
 
   resources :games, only: [:index, :create, :show]
 
+  resources :user_games, only: [:create, :destroy]
+
   root 'games#home'
 
 end

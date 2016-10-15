@@ -18,7 +18,14 @@
   </div>
 </div>
 
-<div id="gameLogin"></div>
+<div id="gameLogin">
+  <% unless current_user.nil? %>
+    Signed in so allow for game select
+  <% else %>
+    Can we yield to the new session page?
+    <%#= render 'devise/sessions/new' %>
+  <% end %>
+</div>
 
 <script>
 

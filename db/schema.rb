@@ -29,17 +29,16 @@ ActiveRecord::Schema.define(version: 20161014092841) do
     t.index ["creator_id"], name: "index_games_on_creator_id", using: :btree
   end
 
-  create_table "sessions", force: :cascade do |t|
+  create_table "user_games", force: :cascade do |t|
     t.integer  "user_id"
     t.integer  "game_id"
-    t.boolean  "is_attending"
-    t.boolean  "is_present"
+    t.boolean  "is_present", default: false
     t.float    "lat"
-    t.float    "long"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
-    t.index ["game_id"], name: "index_sessions_on_game_id", using: :btree
-    t.index ["user_id"], name: "index_sessions_on_user_id", using: :btree
+    t.float    "lng"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.index ["game_id"], name: "index_user_games_on_game_id", using: :btree
+    t.index ["user_id"], name: "index_user_games_on_user_id", using: :btree
   end
 
   create_table "users", force: :cascade do |t|
@@ -61,6 +60,6 @@ ActiveRecord::Schema.define(version: 20161014092841) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   end
 
-  add_foreign_key "sessions", "games"
-  add_foreign_key "sessions", "users"
+  add_foreign_key "user_games", "games"
+  add_foreign_key "user_games", "users"
 end

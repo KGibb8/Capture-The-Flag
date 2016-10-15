@@ -104,28 +104,28 @@ var csrf = $("meta[name=csrf-token]").attr('content');
 
 $(function () {
   <%# $("#createGameBtn").on("click", function (e) { %>
-    <%# e.preventDefault(); %>
-      <%# var form = $(this).parent().children(); %>
-      <%# $.post('/games', function () { %>
-          <%#   authenticity_token: form[1].value, %>
-            <%#   game: { %>
-                <%#     name: form[3].value, %>
-                  <%#     lat: form[5].value, %>
-                  <%#     lng: form[7].value, %>
-                  <%#     description: form[18].value %>
-                  <%#   } %>
-                  <%# }).done( %>
-                    <%#   function (response) { %>
-                        <%#     console.log(response); %>
-                          <%# }); %>
-  <%# }); %>
-  $("#new_game").on("ajax:success", function (game, data, status, xhr) {
-    console.log(data, xhr.responseText);
-    data.lng = data.lng;
-    createGameMarker(data);
-    actualWindow.css("display", "none");
-    marker.setVisible(false);
-  });
+      <%# e.preventDefault(); %>
+        <%# var form = $(this).parent().children(); %>
+        <%# $.post('/games', function () { %>
+            <%#   authenticity_token: form[1].value, %>
+              <%#   game: { %>
+                  <%#     name: form[3].value, %>
+                    <%#     lat: form[5].value, %>
+                    <%#     lng: form[7].value, %>
+                    <%#     description: form[18].value %>
+                    <%#   } %>
+                    <%# }).done( %>
+                      <%#   function (response) { %>
+                          <%#     console.log(response); %>
+                            <%# }); %>
+                    <%# }); %>
+    $("#new_game").on("ajax:success", function (game, data, status, xhr) {
+      console.log(data, xhr.responseText);
+      data.lng = data.lng;
+      createGameMarker(data);
+      actualWindow.css("display", "none");
+      marker.setVisible(false);
+    });
 });
 
 ////////////////// WINDOW TOGGLE //////////////////////
@@ -173,16 +173,23 @@ var pastGames = [<% @past_games.each do |game| %>
 
 var upcomingGames = [<% @upcoming_games.each do |game| %> 
 <%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
-<% end %>];
+  <% end %>];
 
-var myPastGames = [<% @my_past_games.each do |game| %> 
-<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
-<% end %>];
+var myPastGames = [];
+var myUpcomingGames = [];
 
-var myUpcomingGames = [<% @my_upcoming_games.each do |game| %> 
-<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
-<% end %>];
+<% unless current_user.nil? %>
+    var myPastGames = [<% @my_past_games.each do |game| %> 
+    <%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+  <% end %>];
 
+  var myUpcomingGames = [<% @my_upcoming_games.each do |game| %> 
+  <%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+  <% end %>];
+<% end %>
+
+var activeInfoWindow;
+// Store infoWindow in global variable then close!
 
 var createGameMarker = function (game, i) {
   game.marker = new google.maps.Marker({
@@ -195,51 +202,40 @@ var createGameMarker = function (game, i) {
       lng: game.lng
     }
   });
-  game.marker.addListener('mouseover', function () {
-    $(".game").css("display", "none");
-    lastSelectedIncident = document.getElementById("game_" + game.id);
-    console.log(lastSelectedIncident);
-    lastSelectedIncident.style.display = "block";
+
+  var activeInfoWindow = new google.maps.InfoWindow({
+    content : '<div class="infoWindowContent">' +
+      '<h2>' + game.name + '</h2>' +
+      '<img src=' + game.picture + '>' +
+      '<div class="infoWindowDesc">' +
+      'Time: ' + game.time + '<br>' +
+      'Description: ' + game.description + 
+      '</div>' + <% unless current_user.nil? %>'<input type="submit" value="Join Game" class="joinGameBtn" id="game_' + game.id + '">' + <% end %>'</div>'
   });
-  game.marker.addListener('mouseout', function () {
-    if (lastSelectedIncident != null) {
-      lastSelectedIncident.style.display = "none";
-    }
-  });
-  var infoWindow = new google.maps.InfoWindow({
-    content: "FRRRARARRARARRAR Hello World"
-  });
+
+  var infoWindowClosed = true;
+  // TODO: above can we get the button to disappear when the user has already joined the game and replace with JOINED! 
+
   game.marker.addListener("click", function (e) {
-    console.log(this);
-    if (infoWindow) {
-      infoWindow.close();
+    if (infoWindowClosed) {
+      activeInfoWindow.open(map, game.marker);
+      infoWindowClosed = false;
+    } else {
+      activeInfoWindow.close(map, game.marker);
+      infoWindowClosed = true;
     }
-    var infoWindow = new google.maps.InfoWindow({
-      content : '<div class="infoWindowContent">' +
-        '<h2>' + game.name + '</h2>' +
-        '<img src=' + game.picture + '>' +
-        '<div class="infoWindowDesc">' +
-        'Time: ' + game.time + '<br>' +
-        'Description: ' + game.description + 
-        '</div><input type="submit" value="Join Game" class="joinGameBtn" id="game_' + game.id + '"></div>'
-    });
-    lastSelectedIncident = null;
-    infoWindow.open(map, game.marker);
     var joinGame = $("#game_" + game.id);
     joinGame.on("click", function () {
-      $.post('/games', {
+      $.post('/user_games', {
         authenticity_token: csrf,
-        session: {
-          game_id: this.id.toString().substring(5, 999)
+        user_game: {
+          game_id: this.id.toString().substring(5, 999),
         }
       }).done(
         function (response) {
           console.log(response);
-      });
+        });
     });
-  });
-  game.marker.addListener("mouseout", function () {
-    infoWindow = null;
   });
 };
 
@@ -268,6 +264,12 @@ function initMap() {
     $("#game_lng").val(e.latLng.lng());
     marker.setPosition(e.latLng);
   });
+
+  <%# var infoWindow = new google.maps.InfoWindow({ %>
+  <%#   content: "FRRRARARRARARRAR Hello World" %>
+  <%# }); %>
+
+
   var allGames = [pastGames, upcomingGames, myPastGames, myUpcomingGames];
   for (var i = 0; i < allGames.length; ++i) {
     allGames[i].forEach(function (game) {
