@@ -49,8 +49,9 @@ h3 {
 }
 
 #gameLogin {
+  padding-top: 4em;
   border-radius: 1em;
-  z-index: 1;
+  z-index: 2;
   position: fixed;
   top: 10%;
   right: 10%;
@@ -58,4 +59,24 @@ h3 {
   height: 80%;
   width: 80%;
   background-color: rgba(0,0,0,0.75);
+}
+
+a.boxclose{
+  float:right;
+  margin-top:-70px;
+  margin-right:-20px;
+  cursor:pointer;
+  color: #fff;
+  border: 1px solid #AEAEAE;
+  border-radius: 30px;
+  background: #605F61;
+  font-size: 31px;
+  font-weight: bold;
+  display: inline-block;
+  line-height: 0px;
+  padding: 11px 3px
+}
+
+.boxclose:before {
+  content: "×";
 }

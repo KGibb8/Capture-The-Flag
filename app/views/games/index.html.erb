@@ -7,7 +7,7 @@
     <% unless current_user.nil? %>
       <p class="navbar-text" id="signedIn">Signed in as <%= current_user.username %></p>
     <% else %>
-      <div class="log"><%= link_to "Log In", new_user_session_path %></div>
+      <div class="log" id="logInBtn">Log In</div>
     <% end %>
     <br>
     <div class="col-md-4"></div>
@@ -21,7 +21,7 @@
   </nav>
 </div>
 
-<div class="left_side_bar">
+<div class="left_side_bar" id="leftSideBar">
   <p>Reclaim the Streets!</p>
   <p>To create a game, place a marker on the map for the meeting point, click on the button below and fill out the form</p>
   <% unless current_user.nil? %>
@@ -89,43 +89,63 @@
   </div>
 <% end %>
 
-<div id="map"></div>
+<div id="gameLogin">
+  <a class="boxclose" id="boxclose"></a>
+  <div class="row">
+    <% unless current_user.nil? %>
+      <%# <% collection_select() %1> %>
+    <% else %>
+      <div class="col-md-2"></div>
+      <div class="col-md-4"><%= render 'users/registrations/new' %></div>
 
-<div class="allGames">
-  <% @games.each do |game| %>
-    <div class="game" id="game_<%= game.id %>">
-    </div>
-  <% end %>
+      <div class="col-md-4"><%= render 'users/sessions/new' %></div>
+      <div class="col-md-2"></div>
+    <% end %>
+  </div>
 </div>
 
+<div id="map"></div>
+
+<%= javascript_include_tag 'map' %>
+
 <script>
+
+
+var leftSideBar = $("#leftSideBar");
+var logInBtn = $("#logInBtn");
+var logInWindow = $("#gameLogin");
+
+logInBtn.on("click", function () {
+  if (logInWindow.is(":visible")) {
+    logInWindow.hide();
+    leftSideBar.show();
+  } else {
+    logInWindow.show();
+    leftSideBar.hide();
+  }
+});
+
+var sideBarBtn = $("#sideBarBtn")
+sideBarBtn.on("click", function () {
+  leftSideBar.toggle();
+});
+
+var boxClose = $("#boxclose");
+boxClose.on("click", function () {
+  $(boxClose.parent()[0]).hide();
+  leftSideBar.show();
+})
 
 var csrf = $("meta[name=csrf-token]").attr('content');
 
 $(function () {
-  <%# $("#createGameBtn").on("click", function (e) { %>
-      <%# e.preventDefault(); %>
-        <%# var form = $(this).parent().children(); %>
-        <%# $.post('/games', function () { %>
-            <%#   authenticity_token: form[1].value, %>
-              <%#   game: { %>
-                  <%#     name: form[3].value, %>
-                    <%#     lat: form[5].value, %>
-                    <%#     lng: form[7].value, %>
-                    <%#     description: form[18].value %>
-                    <%#   } %>
-                    <%# }).done( %>
-                      <%#   function (response) { %>
-                          <%#     console.log(response); %>
-                            <%# }); %>
-                    <%# }); %>
-    $("#new_game").on("ajax:success", function (game, data, status, xhr) {
-      console.log(data, xhr.responseText);
-      data.lng = data.lng;
-      createGameMarker(data);
-      actualWindow.css("display", "none");
-      marker.setVisible(false);
-    });
+  $("#new_game").on("ajax:success", function (game, data, status, xhr) {
+    console.log(data, xhr.responseText);
+    data.lng = data.lng;
+    createGameMarker(data);
+    actualWindow.css("display", "none");
+    marker.setVisible(false);
+  });
 });
 
 ////////////////// WINDOW TOGGLE //////////////////////
@@ -138,145 +158,38 @@ var actualMyGamesWindow = $("#myGames");
 var myGamesWindowBtn = $("#myGamesWindowBtn");
 var myGamesWindowBtnCount = 1;
 
-// TODO: This needs rewriting using toggle
-
-console.log(myGamesWindowBtn)
-  myGamesWindowBtn.on("click", function () {
-    myGamesWindowBtnCount += 1;
-    if (myGamesWindowBtnCount% 2 == 0) {
-      actualMyGamesWindow.css("display", "block");
-      gameWindowBtnCount += 1;
-      actualWindow.css("display", "none");
-    } else {
-      actualMyGamesWindow.css("display", "none");
-    };
-  });
-
-newGameWindowBtn.on("click", function () {
-  gameWindowBtnCount += 1;
-  if (gameWindowBtnCount % 2 == 0) {
-    actualWindow.css("display", "block");
-    myGamesWindowBtnCount += 1;
-    actualMyGamesWindow.css("display", "none")
-  } else {
-    actualWindow.css("display", "none");
-  };
+myGamesWindowBtn.on("click", function () {
+  actualMyGamesWindow.toggle();
 });
 
-var games = [<% @games.each do |game| %>
-<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
-<% end %>];
+newGameWindowBtn.on("click", function () {
+  actualWindow.toggle();
+});
+
+///////////////////// GAMES FOR THE MAP /////////////////////
 
 var pastGames = [<% @past_games.each do |game| %>
 <%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
 <% end %>];
 
-var upcomingGames = [<% @upcoming_games.each do |game| %> 
+var upcomingGames = [<% @upcoming_games.each do |game| %>
 <%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
   <% end %>];
 
-var myPastGames = [];
-var myUpcomingGames = [];
+  var myPastGames = [];
+  var myUpcomingGames = [];
 
-<% unless current_user.nil? %>
-    var myPastGames = [<% @my_past_games.each do |game| %> 
+  <% unless current_user.nil? %>
+    var myPastGames = [<% @my_past_games.each do |game| %>
     <%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
   <% end %>];
 
-  var myUpcomingGames = [<% @my_upcoming_games.each do |game| %> 
+  var myUpcomingGames = [<% @my_upcoming_games.each do |game| %>
   <%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
-  <% end %>];
+<% end %>];
 <% end %>
 
-var activeInfoWindow;
-// Store infoWindow in global variable then close!
-
-var createGameMarker = function (game, i) {
-  game.marker = new google.maps.Marker({
-    map: map,
-    icon: '/assets/flags/flag_'+ i +'.png',
-    draggable: false,
-    animation: google.maps.Animation.DROP,
-    position: {
-      lat: game.lat,
-      lng: game.lng
-    }
-  });
-
-  var activeInfoWindow = new google.maps.InfoWindow({
-    content : '<div class="infoWindowContent">' +
-      '<h2>' + game.name + '</h2>' +
-      '<img src=' + game.picture + '>' +
-      '<div class="infoWindowDesc">' +
-      'Time: ' + game.time + '<br>' +
-      'Description: ' + game.description + 
-      '</div>' + <% unless current_user.nil? %>'<input type="submit" value="Join Game" class="joinGameBtn" id="game_' + game.id + '">' + <% end %>'</div>'
-  });
-
-  var infoWindowClosed = true;
-  // TODO: above can we get the button to disappear when the user has already joined the game and replace with JOINED! 
-
-  game.marker.addListener("click", function (e) {
-    if (infoWindowClosed) {
-      activeInfoWindow.open(map, game.marker);
-      infoWindowClosed = false;
-    } else {
-      activeInfoWindow.close(map, game.marker);
-      infoWindowClosed = true;
-    }
-    var joinGame = $("#game_" + game.id);
-    joinGame.on("click", function () {
-      $.post('/user_games', {
-        authenticity_token: csrf,
-        user_game: {
-          game_id: this.id.toString().substring(5, 999),
-        }
-      }).done(
-        function (response) {
-          console.log(response);
-        });
-    });
-  });
-};
-
-var map;
-function initMap() {
-  var lastSelectedGame = null;
-  map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 51.38806611676009, lng: -0.100250244140625},
-    minZoom: 3,
-    zoom: 8,
-    styles: [{"featureType":"all","elementType":"labels.text.fill","stylers":[{"color":"#ffffff"},{"weight":"0.20"},{"lightness":"28"},{"saturation":"23"},{"visibility":"off"}]},{"featureType":"all","elementType":"labels.text.stroke","stylers":[{"color":"#494949"},{"lightness":13},{"visibility":"off"}]},{"featureType":"all","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"administrative","elementType":"geometry.fill","stylers":[{"color":"#000000"}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#144b53"},{"lightness":14},{"weight":1.4}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#08304b"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#0c4152"},{"lightness":5}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#000000"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#0b434f"},{"lightness":25}]},{"featureType":"road.arterial","elementType":"geometry.fill","stylers":[{"color":"#000000"}]},{"featureType":"road.arterial","elementType":"geometry.stroke","stylers":[{"color":"#0b3d51"},{"lightness":16}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#000000"}]},{"featureType":"transit","elementType":"all","stylers":[{"color":"#146474"}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#021019"}]}]
-
-  });
-
-  // Loose marker we place when a click happens
-  marker = new google.maps.Marker({
-    map: map,
-    draggable: false,
-    animation: google.maps.Animation.DROP
-  });
-
-  map.addListener('click', function (e) {
-    // Go fill in the input type=hidden
-    marker.setVisible(true);
-    $("#game_lat").val(e.latLng.lat());
-    $("#game_lng").val(e.latLng.lng());
-    marker.setPosition(e.latLng);
-  });
-
-  <%# var infoWindow = new google.maps.InfoWindow({ %>
-  <%#   content: "FRRRARARRARARRAR Hello World" %>
-  <%# }); %>
-
-
-  var allGames = [pastGames, upcomingGames, myPastGames, myUpcomingGames];
-  for (var i = 0; i < allGames.length; ++i) {
-    allGames[i].forEach(function (game) {
-      createGameMarker(game, i);
-    })
-  }
-}
+var lastInfoWindow;
 
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCgPKDNnR376aeoPLyafsvnJs_EcpDtPV8&callback=initMap" async defer>

@@ -8,11 +8,21 @@
   cursor: pointer;
 }
 
+.navbar {
+  padding: 0;
+}
+
 .navbar-fixed-top {
-  height: 95px;
+  height: 50px;
   background-color: #021019;
   border-bottom: 1px solid white;
-  li { 
+  ul {
+    margin: 0;
+  }
+  h2 {
+    margin: 0;
+  }
+  li {
     display: inline-block;
     list-style: none;
   }
@@ -28,7 +38,7 @@
 
 .log {
   position: fixed;
-  top: 20px;
+  top: 5px;
   right: 30px;
 }
 
@@ -50,6 +60,10 @@
       padding: 0.5em;
     }
   }
+}
+
+#leftSideBar {
+  visibility: visible;
 }
 
 
@@ -89,4 +103,11 @@
     background-color: rgba(0,0,0,0.75);
     color: #373A3C;
   }
+}
+
+#logInBtn {
+  padding: 0.5em;
+  border-radius: 0.5em;
+  cursor: pointer;
+  background-color: rgba(0,0,0,0.75);
 }
