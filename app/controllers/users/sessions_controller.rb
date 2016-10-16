@@ -11,13 +11,18 @@ class Users::SessionsController < Devise::SessionsController
   # POST /resource/sign_in
   def create
     # super
+    binding.pry
     user = User.find_by(email: sign_in_params[:email])
     if user
       if sign_in user
         # respond_to do |format|
           # format.json { render json: user }
         # end
-        render json: user
+        if remotipart_submitted?
+          user.avatar = user.avatar.thumb.url
+          binding.pry
+          render json: user
+        end
         # render user.to_json, content_type: "application/json"
       else
         # Devise must be able to do this for me?
