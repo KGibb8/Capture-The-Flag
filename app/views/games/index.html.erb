@@ -65,6 +65,7 @@
   </div>
 </div>
 
+<%# TODO : Add javascript/CSS accordion for future + past games + rename Upcoming as Future %>
 <% unless current_user.nil? %>
   <div id="myUpcomingGames">
   <a class="boxclose" id="boxclose"></a>
@@ -137,6 +138,32 @@
 
 <div id="map"></div>
 
+<script>
+var pastGames = [<% @past_games.each do |game| %>
+<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+<% end %>];
+
+var upcomingGames = [<% @upcoming_games.each do |game| %>
+<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+  <% end %>];
+
+  var myPastGames = [];
+  var myUpcomingGames = [];
+
+  <% unless current_user.nil? %>
+    var myPastGames = [<% @my_past_games.each do |game| %>
+    <%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+  <% end %>];
+
+  var myUpcomingGames = [<% @my_upcoming_games.each do |game| %>
+  <%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
+<% end %>];
+<% end %>
+
+var allGames = [pastGames, upcomingGames, myPastGames, myUpcomingGames];
+
+</script>
+
 <%= javascript_include_tag 'map' %>
 
 <script>
@@ -162,16 +189,9 @@ boxClose.on("click", function () {
   $(this.parentElement).hide();
 })
 
-var locoBtn = $(".locoBtn");
-locoBtn.on("click", function () {
-  console.log($(this).id);
-  <%# TODO: YOU CAN SEE YOU FOOOL %> 
-    <%# map.panTo(new google.maps.LatLng(37.4419, -122.1419), 13); %>
-    <%# map.setZoom(15); %>
-})
-
 var csrf = $("meta[name=csrf-token]").attr('content');
 
+<%# TODO : Fix this and the other AJAX request so we render the correct alert message %>
 $(function () {
   $("#new_game").on("ajax:success", function (game, data, status, xhr) {
     console.log(data, xhr.responseText);
@@ -194,41 +214,55 @@ var myPastGamesWindow = $("#myPastGames");
 var pastGamesBtn = $("#pastGamesBtn");
 
 upcomingGamesBtn.on("click", function () {
+  if (myPastGamesWindow.is(":visible")) {
+    myPastGamesWindow.hide();
+  } else if (actualWindow.is(":visible")) {
+    actualWindow.hide();
+  }
   myUpcomingGamesWindow.toggle();
 });
 
 pastGamesBtn.on("click", function () {
+  if (myUpcomingGamesWindow.is(":visible")) {
+    myUpcomingGamesWindow.hide();
+  } else if (actualWindow.is(":visible")) {
+    actualWindow.hide();
+  }
   myPastGamesWindow.toggle();
 });
 
 newGameWindowBtn.on("click", function () {
+  if (myUpcomingGamesWindow.is(":visible")) {
+    myUpcomingGamesWindow.hide();
+  } else if (myPastGamesWindow.is(":visible")) {
+    myPastGamesWindow.hide();
+  }
   actualWindow.toggle();
 });
 
-///////////////////// GAMES FOR THE MAP /////////////////////
-
-var pastGames = [<% @past_games.each do |game| %>
-<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
-<% end %>];
-
-var upcomingGames = [<% @upcoming_games.each do |game| %>
-<%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
-  <% end %>];
-
-  var myPastGames = [];
-  var myUpcomingGames = [];
-
-  <% unless current_user.nil? %>
-    var myPastGames = [<% @my_past_games.each do |game| %>
-    <%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
-  <% end %>];
-
-  var myUpcomingGames = [<% @my_upcoming_games.each do |game| %>
-  <%= "{id: #{game.id}, lat: #{game.lat}, lng: #{game.lng}, name: #{game.name.inspect}, picture: '#{game.pictures[0].thumb.url unless game.pictures[0].nil?}', time: '#{game.start_time.inspect}', description: #{game.description.inspect}},".html_safe %>
-<% end %>];
-<% end %>
-
+// Setting blank variable for infoWindow.close();
 var lastInfoWindow;
+
+// Zoom in on location in past/future games on location button click
+var locoBtn = $(".locoBtn");
+locoBtn.on("click", function () {
+  // set empty variable
+  var theGame;
+  // find game id of object we're trying to locate
+  var locateMe = $(this.id.toString().substring(8,999)).selector;
+  // parse string id to integer
+  locateMe = parseInt(locateMe);
+  // Search allGame objects on page
+  allGames.forEach(function (gameList) {
+    if (!theGame) {
+      theGame = gameList.filter(function (game) { return game.id == locateMe; })[0];
+    }
+  });
+  if (theGame) {
+    map.panTo(new google.maps.LatLng(theGame.lat, theGame.lng));
+   smoothZoom(map, 16, map.getZoom());
+  }
+})
 
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCgPKDNnR376aeoPLyafsvnJs_EcpDtPV8&callback=initMap" async defer>
