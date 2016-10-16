@@ -49,7 +49,7 @@ h3 {
 }
 
 #gameLogin {
-  padding-top: 4em;
+  padding-top: 1em;
   border-radius: 1em;
   z-index: 2;
   position: fixed;
@@ -61,9 +61,12 @@ h3 {
   background-color: rgba(0,0,0,0.75);
 }
 
+.subcontainer {
+  margin-top: 2em;
+}
 a.boxclose{
   float:right;
-  margin-top:-70px;
+  margin-top:-30px;
   margin-right:-20px;
   cursor:pointer;
   color: #fff;
@@ -79,4 +82,13 @@ a.boxclose{
 
 .boxclose:before {
   content: "×";
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  li {
+    list-style: none;
+  }
 }

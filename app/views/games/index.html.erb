@@ -22,22 +22,24 @@
 </div>
 
 <div class="left_side_bar" id="leftSideBar">
+  <a class="boxclose" id="boxclose"></a>
   <p>Reclaim the Streets!</p>
   <p>To create a game, place a marker on the map for the meeting point, click on the button below and fill out the form</p>
   <% unless current_user.nil? %>
     <ul>
       <li><%= button_tag "New Game", id: "newGameWindowBtn", class: "button" %></li>
-      <li><%= button_tag "My Games", id: "myGamesWindowBtn", class: "button" %></li>
-      <li></li>
+      <li><%= button_tag "My Future Games", id: "upcomingGamesBtn", class: "button" %></li>
+      <li><%= button_tag "My Past Games", id: "pastGamesBtn", class: "button" %></li>
     </ul>
   <% else %>
     <p>You need to be signed in to create or join a game!</p>
   <% end %>
   <p>To join a game, click on a flag to sign up to attend that game!</p>
-  <%= button_tag "Hide Me", id: "sideBarBtn", class: "button" %>
+  <%# <%= button_tag "Hide Me", id: "sideBarBtn", class: "button" %1> %>
 </div>
 
 <div id="createNewGame">
+  <a class="boxclose" id="boxclose"></a>
   <div class="gameSidebar">
     <h2>Add a new game!</h2>
     <%= form_for @game do |f| %>
@@ -64,22 +66,23 @@
 </div>
 
 <% unless current_user.nil? %>
-  <div id="myGames">
+  <div id="myUpcomingGames">
+  <a class="boxclose" id="boxclose"></a>
     <div class="gameSidebar">
-      <h2>My Upcoming Games</h2>
+      <h2>My Future Games</h2>
       <% if current_user.games.empty? %>
         <p>You have no current games, click on one to join!</p>
       <% else %>
         <ul>
           <% @my_upcoming_games.each do |game| %>
+          <%= image_tag(game.pictures[0].thumb.url) unless game.pictures.nil? %>
             <li>
               <ul>
                 <li><%= game.name %></li>
                 <li><%= game.start_time %></li>
                 <li><%= game.end_time %><</li>
-                <li><%= game.pictures[0].thumb.url %></li>
                 <li><%= game.description %></li>
-                <li><%= button_tag "Locate", id: "locoBtn", class: "button" %></li>
+                <li><%= button_tag "Locate", id: "locoBtn_#{game.id}", class: "button locoBtn" %></li>
               </ul>
             </li>
           <% end %>
@@ -87,20 +90,48 @@
       <% end %>
     </div>
   </div>
+
+  <div id="myPastGames">
+  <a class="boxclose" id="boxclose"></a>
+    <div class="gameSidebar">
+      <h2>My Past Games</h2>
+      <% if current_user.games.empty? %>
+        <p>You haven't attended any games, click on one to join!</p>
+      <% else %>
+        <ul>
+          <% @my_past_games.each do |game| %>
+            <%= image_tag(game.pictures[0].thumb.url) unless game.pictures.nil? %>
+            <li>
+              <ul>
+                <li><%= game.name %></li>
+                <li><%= game.start_time %></li>
+                <li><%= game.end_time %><</li>
+                <li><%= game.description %></li>
+                <li><%= button_tag "Locate", id: "locoBtn_#{game.id}", class: "button locoBtn" %></li>
+              </ul>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+  </div>
+
 <% end %>
 
 <div id="gameLogin">
   <a class="boxclose" id="boxclose"></a>
   <div class="row">
-    <% unless current_user.nil? %>
-      <%# <% collection_select() %1> %>
-    <% else %>
-      <div class="col-md-2"></div>
-      <div class="col-md-4"><%= render 'users/registrations/new' %></div>
+    <div class="subcontainer">
+      <% unless current_user.nil? %>
+        <%# <% collection_select() %1> %>
+      <% else %>
+        <div class="col-md-2"></div>
+        <div class="col-md-4"><%= render 'users/registrations/new' %></div>
 
-      <div class="col-md-4"><%= render 'users/sessions/new' %></div>
-      <div class="col-md-2"></div>
-    <% end %>
+        <div class="col-md-4"><%= render 'users/sessions/new' %></div>
+        <div class="col-md-2"></div>
+      <% end %>
+    </div>
   </div>
 </div>
 
@@ -125,15 +156,22 @@ logInBtn.on("click", function () {
   }
 });
 
-var sideBarBtn = $("#sideBarBtn")
-sideBarBtn.on("click", function () {
-  leftSideBar.toggle();
-});
+<%# var sideBarBtn = $("#sideBarBtn") %>
+<%# sideBarBtn.on("click", function () { %>
+    <%#   leftSideBar.toggle(); %>
+      <%# }); %>
 
-var boxClose = $("#boxclose");
+var boxClose = $(".boxclose");
 boxClose.on("click", function () {
-  $(boxClose.parent()[0]).hide();
-  leftSideBar.show();
+  $(this.parentElement).hide();
+})
+
+var locoBtn = $(".locoBtn");
+locoBtn.on("click", function () {
+  console.log($(this).id);
+  <%# TODO: YOU CAN SEE YOU FOOOL %> 
+    <%# map.panTo(new google.maps.LatLng(37.4419, -122.1419), 13); %>
+    <%# map.setZoom(15); %>
 })
 
 var csrf = $("meta[name=csrf-token]").attr('content');
@@ -152,14 +190,19 @@ $(function () {
 
 var actualWindow = $("#createNewGame");
 var newGameWindowBtn = $("#newGameWindowBtn");
-var gameWindowBtnCount = 1;
 
-var actualMyGamesWindow = $("#myGames");
-var myGamesWindowBtn = $("#myGamesWindowBtn");
-var myGamesWindowBtnCount = 1;
+var myUpcomingGamesWindow = $("#myUpcomingGames");
+var upcomingGamesBtn = $("#upcomingGamesBtn");
 
-myGamesWindowBtn.on("click", function () {
-  actualMyGamesWindow.toggle();
+var myPastGamesWindow = $("#myPastGames");
+var pastGamesBtn = $("#pastGamesBtn");
+
+upcomingGamesBtn.on("click", function () {
+  myUpcomingGamesWindow.toggle();
+});
+
+pastGamesBtn.on("click", function () {
+  myPastGamesWindow.toggle();
 });
 
 newGameWindowBtn.on("click", function () {

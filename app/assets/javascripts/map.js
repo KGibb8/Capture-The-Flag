@@ -26,11 +26,11 @@ var createGameMarker = function (game, i) {
   // TODO: above can we get the button to disappear when the user has already joined the game and replace with JOINED! 
 
   game.marker.addListener("click", function (e) {
-    console.log(lastInfoWindow)
-      console.log(infoWindow)
-      if (lastInfoWindow != null) {
-        lastInfoWindow.close();
-      }
+    map.panTo(game.marker.getPosition());
+    // map.setZoom(12);
+    if (lastInfoWindow != null) {
+      lastInfoWindow.close();
+    }
     if (infoWindowClosed) {
       infoWindow.open(map, game.marker);
       infoWindowClosed = false;

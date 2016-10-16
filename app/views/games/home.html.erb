@@ -19,10 +19,18 @@
 
   <div id="gameLogin">
     <a class="boxclose" id="boxclose"></a>
-    <div class="row">
       <% unless current_user.nil? %>
+      <div class="row">
         <%# <% collection_select() %1> %>
+      <div>
       <% else %>
+      <div class="row">
+      <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><p>You must be logged in to enter Game Mode</p></div>
+        <div class="col-md-2"></div>
+      </div>
+      <div class="row">
         <div class="col-md-2"></div>
         <div class="col-md-4"><%= render 'users/registrations/new' %></div>
 
