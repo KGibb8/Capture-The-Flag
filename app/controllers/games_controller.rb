@@ -25,8 +25,10 @@ class GamesController < ApplicationController
     my_games_params = my_games_params.merge(creator: current_user)
     game = Game.new(my_games_params)
     flash[:notice] = "#{game.name} created successfully!" if game.save
-    #   binding.pry
-    #    render json: game.to_json
+    if remotipart_submitted?
+      # TODO : Remotipart now works, but we're getting a No Content in response
+      render json: game
+    end
   end
 
   def show

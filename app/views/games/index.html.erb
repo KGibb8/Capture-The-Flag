@@ -42,7 +42,7 @@
   <a class="boxclose" id="boxclose"></a>
   <div class="gameSidebar">
     <h2>Add a new game!</h2>
-    <%= form_for @game do |f| %>
+    <%= form_for @game, :html => { :multipart => true  }, :remote => true  do |f| %>
       <h3>Name</h3>
       <%= f.text_field :name %><br>
       <%= f.hidden_field :lat %><br>
@@ -59,7 +59,7 @@
       <h3>Description:</h3>
       <%= f.text_area :description %><br>
       <div id="createGameBtn">
-        <%= f.submit "Create Game", class: "button" %>
+        <%= f.submit "Create Game", id: "new_game", class: "button" %>
       </div>
     <% end %>
   </div>
