@@ -70,4 +70,4 @@ source 'https://rails-assets.org' do
     gem 'rails-assets-tether', '>= 1.1.0'
 end
 
-# gem "jquery-fileupload-rails"
+gem 'remotipart', '~> 1.3.1'

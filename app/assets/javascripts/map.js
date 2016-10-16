@@ -41,6 +41,7 @@ var createGameMarker = function (game, i) {
     lastInfoWindow = infoWindow;
     var joinGame = $("#game_" + game.id);
     joinGame.on("click", function () {
+      console.log($(this));
       $.post('/user_games', {
         authenticity_token: csrf,
         user_game: {

@@ -1,6 +1,7 @@
 class Users::SessionsController < Devise::SessionsController
   before_action :configure_sign_in_params, only: [:create]
-  # respond_to :json
+  clear_respond_to
+  respond_to :json
 
   # GET /resource/sign_in
   def new
@@ -9,7 +10,23 @@ class Users::SessionsController < Devise::SessionsController
 
   # POST /resource/sign_in
   def create
-    super
+    # super
+    user = User.find_by(email: sign_in_params[:email])
+    if user
+      if sign_in user
+        # respond_to do |format|
+          # format.json { render json: user }
+        # end
+        render json: user
+        # render user.to_json, content_type: "application/json"
+      else
+        # Devise must be able to do this for me?
+        # response = HttpResponse("Incorrect Password", mimetype="text/html")
+        render json: "Incorrect Password"
+      end
+    else
+      render json: "User does not exist. Please create an account."
+    end
   end
 
   # DELETE /resource/sign_out
