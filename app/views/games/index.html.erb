@@ -59,7 +59,7 @@
       <h3>Description:</h3>
       <%= f.text_area :description %><br>
       <div id="createGameBtn">
-        <%= f.submit "Create Game", id: "new_game", class: "button" %>
+        <%= f.submit "Create Game", id: "newGameBtn", class: "button" %>
       </div>
     <% end %>
   </div>
@@ -191,15 +191,11 @@ boxClose.on("click", function () {
 
 var csrf = $("meta[name=csrf-token]").attr('content');
 
-<%# TODO : Fix this and the other AJAX request so we render the correct alert message %>
-$(function () {
-  $("#new_game").on("ajax:success", function (game, data, status, xhr) {
-    console.log(data, xhr.responseText);
-    data.lng = data.lng;
-    createGameMarker(data);
-    actualWindow.css("display", "none");
-    marker.setVisible(false);
-  });
+$(".new_game").on("ajax:remotipartComplete", function(e, data){
+  var ajaxSuccess = data.responseText;
+  response = jQuery.parseJSON(ajaxSuccess) 
+  response.picture = response.pictures[0];
+  createGameMarker(response, 3);
 });
 
 ////////////////// WINDOW TOGGLE //////////////////////
@@ -260,7 +256,7 @@ locoBtn.on("click", function () {
   });
   if (theGame) {
     map.panTo(new google.maps.LatLng(theGame.lat, theGame.lng));
-   smoothZoom(map, 16, map.getZoom());
+    smoothZoom(map, 16, map.getZoom());
   }
 })
 

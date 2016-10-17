@@ -26,8 +26,11 @@ class GamesController < ApplicationController
     game = Game.new(my_games_params)
     flash[:notice] = "#{game.name} created successfully!" if game.save
     if remotipart_submitted?
+      game.pictures[0] = game.pictures[0].thumb.url
       # TODO : Remotipart now works, but we're getting a No Content in response
       render json: game
+    else 
+      redirect_to games_path
     end
   end
 
